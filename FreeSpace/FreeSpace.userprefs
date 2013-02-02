@@ -1,0 +1,34 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Prefab\PlayerShip.cs">
+    <Files>
+      <File FileName="Assets\Prefab\PlayerCam.cs" Line="11" Column="17" />
+      <File FileName="Assets\Prefab\PlayerShip.cs" Line="42" Column="42" />
+      <File FileName="Assets\Prefab\init_level.cs" Line="16" Column="27" />
+      <File FileName="Assets\SecretSauce\MIscObjects.cs" Line="20" Column="27" />
+      <File FileName="Assets\SecretSauce\Config.cs" Line="7" Column="17" />
+      <File FileName="Assets\UsefulStuff\MeshCreationHelper.cs" Line="15" Column="3" />
+      <File FileName="Assets\Logs\Hit_Log.txt" Line="1" Column="1" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State expanded="True">
+          <Node name="Assembly-CSharp" expanded="True">
+            <Node name="Assets" expanded="True">
+              <Node name="Logs" expanded="True" />
+              <Node name="Prefab" expanded="True">
+                <Node name="PlayerShip.cs" selected="True" />
+              </Node>
+              <Node name="SecretSauce" expanded="True" />
+              <Node name="UsefulStuff" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
