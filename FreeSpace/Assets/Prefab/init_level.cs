@@ -8,11 +8,17 @@ public class init_level : MonoBehaviour {
 	public PlayerShip ship;
 	//TODO:replace with various zoom levels
 	void Start () {
+		
+		//flip normals of a pipe
+		//Switch every second a third value of the triangle array
+		//negate the normals
 	}
 	
 	// Update is called once per frame
 	void Update () {
 		cam = Camera.mainCamera;
-		cam.transform.parent = ship.transform; 
+		cam.transform.parent = ship.transform;
+			
 	}
+	
 }
