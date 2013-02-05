@@ -6,11 +6,16 @@ public class PlayerShip : MonoBehaviour {
 	Mesh shipMesh {get;set;}
 	// Use this for initialization
 	//Pipe width = roughly 3.5
-	private GameObject pipe;
-	
+
+	private Vector3 lastPull;
+	private Vector3 lastForward;
+	private float lastAmnt;
 	//for the second ray trace to find the spine of the track
 	private Vector3 NO_HIT = new Vector3(999999,999999,999999);
 	private float SEARCH_INC = .1f;
+	private Vector3 center = Vector3.zero;
+	
+	private Vector3 ip;
 	//transform.TransformDirection(normalFromMesh)
 	void Start () {
 		
@@ -18,84 +23,115 @@ public class PlayerShip : MonoBehaviour {
 		
 		
 	}
-	
-// This script uses the left and right arrow keys for steering, and the 
-// up and down arrow keys for forward and backward movement. The rotation
-// and movement rates are specified below.
-float rotateSpeed = 3.0f;
-float speed = 11.0f;
- 
+
 	void Update () {
 	
-		RaycastHit hitinfo;
-		Vector3 hitPoint = NO_HIT;
-		if(Physics.Raycast(transform.position,-transform.forward,out hitinfo)){
-			if(hitinfo.distance >=.01){
-				transform.rigidbody.AddForce(-hitinfo.normal * 10);
-				transform.forward = hitinfo.normal;
-			}
-			hitPoint = hitinfo.point;
-		}
-		Vector3 pipeToShipDir = hitinfo.normal;
+
 		
-	 	// get the other side of the pipe
-		Vector3 center = Vector3.zero;
-		
-		//Raycast through the objec to the other side
-		//then raycast downward to the opposite face
-		
-		//we have hit... use a better val
-		if(hitPoint.x != NO_HIT.x){
-			
-			Vector3 lastSearchOrigin
-				= hitPoint - hitinfo.normal ;
-			
-			for(float SEARCH_INC = 3f;
-				SEARCH_INC<= 10.0f;
-				SEARCH_INC+=1f){
-					Ray searchRay = new Ray(lastSearchOrigin,pipeToShipDir);
-					searchRay.direction = pipeToShipDir;
-					searchRay.origin = lastSearchOrigin;
-					
-					RaycastHit hitinfo2;
-					
-					Debug.Log ("Search:" + searchRay);
-					if(Physics.Raycast(searchRay,out hitinfo2,SEARCH_INC)){
-						center = (hitinfo2.point - hitPoint) / 2.0f;
-						var centerX = transform.TransformPoint(center);
-						Debug.Log ("Center:" + centerX);
-						break;
-				}
-			}
-		}
-	    var transAmount = speed * Time.deltaTime;
-		var rotateAmount = rotateSpeed * Time.deltaTime;
-	 
-	    if (Input.GetKey("up")) {
-			transform.Translate(0, transAmount, 0);
-		}
-		if (Input.GetKey("down")) {
-			transform.Translate(0, -transAmount, 0);
-		}
-		
-		//doesn't fucking work obviously
+		Debug.Log ("Euler's test y:" + transform.localRotation);
+	
+
 		if (Input.GetKey("left")) {
+			transform.Rotate(new Vector3(0f,0,-1.0f));
+		
 			
 		}
+		
 		if (Input.GetKey("right")) {
+			transform.Rotate(new Vector3(0f,0,1.0f));
+			
+		}
+		
+	
+		float maxVelocity = 4.3f;
+	
+		var v = rigidbody.velocity;
+		if(v.magnitude > maxVelocity){
+			rigidbody.velocity = Vector3.ClampMagnitude(v,maxVelocity);
 			
 		}
 		//strafe
-		if(Input.GetKey ("a")){
+		if(Input.GetKeyDown ("a")){
 			//transform.RotateAround(new Vector3());	
+			//ChangeLane(transform, 5, 1);
+			var rot = transform.rotation;
+			rot.y = rot.y - 10.0f;
+			transform.rotation = rot;
+			
 		}
-		if(Input.GetKey ("d")){
+		if(Input.GetKeyDown ("d")){
 			//transform.RotateAround(new Vector3());	
+			//ChangeLane(transform, -5, 1);
+			
+			var rot = transform.rotation;
+			rot.y = 200.0f;
+			transform.rotation = rot;
 		}
 	}
-	void OnCollisionEnter(Collision other){
-		if(other.gameObject == pipe){
-			return;	
+	
+	private bool changing  = false;
+	private float turn =  2.0f;
+	
+	void ChangeLane(Transform ship, float angle, float time){
+		float t;
+		float bank;
+		if(changing) return;
+		changing = true;
+		for(t = 0; t < 1;){
+			t+= 2*Time.deltaTime/time;
+			turn = Mathf.Lerp (turn,angle,t);
+			
+			bank = 0.5f * turn;
+			ship.localEulerAngles = new Vector3(bank,0,turn);
+			return;
 		}
+		for(t = 0;t < 1;){
+			t += 2* Time.deltaTime/time;
+			turn = Mathf.Lerp (turn, 0, t);
+			bank = 0.5f * turn;
+			ship.localEulerAngles = new Vector3(turn,0,bank);
+			return;
+		}
+		changing = false;
+	}
+	
+	
+	void FixedUpdate ()
+	{
+		RaycastHit hitinfo;
+		Vector3 hitPoint = NO_HIT;
+		float hoverHeight = .001f;
+		if(Physics.Raycast(transform.position,-transform.forward,out hitinfo)){
+			var amnt = Mathf.Max (1.0f,hitinfo.distance);
+			var idealPosition = transform.position + 
+				((hoverHeight-hitinfo.distance) * transform.forward);
+			var pull = (idealPosition - transform.position);
+			
+			transform.rigidbody.AddForce(-hitinfo.normal * (9800 * amnt * amnt * amnt));
+			//transform.forward = hitinfo.normal;
+			Debug.Log ("Forward:" + transform.forward);
+			ip = idealPosition;
+			hitPoint = hitinfo.point;
+			lastPull = pull;
+			lastForward = hitinfo.normal;
+			lastAmnt = amnt;
+		}
+		else{
+			transform.rigidbody.AddForce(-lastForward * (9800 * lastAmnt * lastAmnt * lastAmnt));
+		}
+		
+	    if (Input.GetKey("up")) {
+			rigidbody.AddForce(transform.up* 6400);
+		}
+		if (Input.GetKey("down")) {
+			rigidbody.AddForce(-transform.up * 6400);
+		}
+		
+	}
+	void LateUpdate(){
+		//transform.position = ip;
+	}
+	void OnCollisionEnter(Collision other){
+
 	}
 }
